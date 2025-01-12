@@ -1,11 +1,3 @@
-Set-Content .gitignore `
-node_modules/
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.env
 dist/
 build/
 coverage/
@@ -14,4 +6,6 @@ coverage/
 Thumbs.db
 *.tmp
 *.tar.gz
-*.zip"
+*.zip
+node_modules/
+package-lock.json

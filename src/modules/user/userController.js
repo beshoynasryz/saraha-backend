@@ -2,11 +2,12 @@ import User from "../../DB/models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import asyncHandler from "express-async-handler";
 dotenv.config();
 
 
-export const signUp = async (req, res, next) => {
-    try {
+export const signUp =asyncHandler (async (req, res, next) => {
+   
         const { name, email, password, phone } = req.body;
 
         // Validate required fields
@@ -46,14 +47,11 @@ export const signUp = async (req, res, next) => {
             user: userWithoutPassword,
             token,
         });
-    } catch (error) {
-        console.error("Error creating user:", error);
-        return res.status(500).send({ message: "Error occurred", error: error.message });
-    }
-};
+ 
+})
 
-export const signIn = async (req, res, next) => {
-    try {
+export const signIn =asyncHandler ( async (req, res, next) => {
+    
         const { email, password } = req.body;
 
         // Check if user exists
@@ -83,9 +81,20 @@ export const signIn = async (req, res, next) => {
             user: userWithoutPassword,
             token,
         });
-    } catch (error) {
-        console.error("Error logging in user:", error);
-        return res.status(500).send({ message: "Error occurred", error: error.message ,stack : error.stack ,error });
-    }
-};
+   
+})
+
+
+
+export const getProfile =asyncHandler (async (req, res ,next ) =>{
+   
+        const userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+        return res.status(200).send({ user});
+
+})
+
 
