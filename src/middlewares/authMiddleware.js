@@ -15,6 +15,7 @@ export const Auth = expressAsyncHandler(async (req, res, next) => {
     return res.status(401).json({ error: 'Token format is invalid. Must be Bearer <token>' });
   }
 
+ 
   // Extract the token from the header
   const token = authHeader.split(' ')[1];
   console.log('Extracted token:', token);
