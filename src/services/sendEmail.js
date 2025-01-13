@@ -21,3 +21,4 @@ const transporter = nodemailer.createTransport({
     html: "<b>Hello world?</b>", // html body
   });
 
+  console.log("Message sent: %s", info.messageId);
