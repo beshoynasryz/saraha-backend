@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import asyncHandler from "express-async-handler";
+import { sendEmail } from "../../services/sendEmail.js";
 dotenv.config();
 
 
@@ -24,6 +25,15 @@ export const signUp =asyncHandler (async (req, res, next) => {
         // Hash the password
         const hashPassword = await bcrypt.hash(password, 10);
 
+        //send email
+        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const link = `http://localhost:3000/confirmEmail/${token}`;
+        const emailSender = await sendEmail (email , "confirm email" , `click <a href=${link}>here</a> to confirm your email` , `click <a href=${link}>here</a> to confirm your email`);
+        if(!emailSender) {
+            return res.status(500).send({ message: "Failed to send email" });
+        }
+        
+        
         // Create new user
         const user = await User.create({ name, email, password: hashPassword, phone });
 
@@ -33,11 +43,7 @@ export const signUp =asyncHandler (async (req, res, next) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign(
-            { id: user._id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRATION }
-        );
+      
 
         // Remove password from the response
         const { password: _, ...userWithoutPassword } = user.toObject();
@@ -45,7 +51,7 @@ export const signUp =asyncHandler (async (req, res, next) => {
         return res.status(201).send({
             message: "User created successfully",
             user: userWithoutPassword,
-            token,
+           
         });
  
 })

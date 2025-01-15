@@ -27,8 +27,14 @@ const userSchema = new mongoose.Schema({
         type :String,
         required : [true , 'phone is required'],
        
-    }
-})
+    },
+    confirmed :{
+        type : Boolean,
+        default : false
+    },
+
+},{timestamps : true , versionKey : false}) 
+
 
 // Create the user model
 const User = mongoose.model('User', userSchema);
