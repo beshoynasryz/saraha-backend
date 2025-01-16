@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { getProfile, signIn, signUp } from './userController.js';
+import { confirmEmail, getProfile, signIn, signUp } from './userController.js';
 import { Auth } from '../../middlewares/authMiddleware.js';
 
 const userRouter = Router();
@@ -8,5 +8,5 @@ const userRouter = Router();
 userRouter.post('/signUp',signUp);
 userRouter.post('/signIn',signIn);
 userRouter.get('/getProfile',Auth,getProfile);
-
+userRouter.get('/confirmEmail/:token', confirmEmail);
 export default userRouter;

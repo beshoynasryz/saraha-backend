@@ -27,12 +27,12 @@ export const signUp =asyncHandler (async (req, res, next) => {
 
         //send email
         const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        const link = `http://localhost:3000/confirmEmail/${token}`;
+        const link = `http://localhost:3000/api/user/confirmEmail/${token}`;
         const emailSender = await sendEmail (email , "confirm email" , `click <a href=${link}>here</a> to confirm your email` , `click <a href=${link}>here</a> to confirm your email`);
         if(!emailSender) {
             return res.status(500).send({ message: "Failed to send email" });
         }
-        
+
         
         // Create new user
         const user = await User.create({ name, email, password: hashPassword, phone });
@@ -42,8 +42,6 @@ export const signUp =asyncHandler (async (req, res, next) => {
             return res.status(500).send({ message: "Failed to create user" });
         }
 
-        // Generate JWT token
-      
 
         // Remove password from the response
         const { password: _, ...userWithoutPassword } = user.toObject();
@@ -90,6 +88,34 @@ export const signIn =asyncHandler ( async (req, res, next) => {
    
 })
 
+export const confirmEmail =asyncHandler (async (req, res, next) => {
+
+    const {token} = req.params;
+    if (!token) {
+        return res.status(400).send({ message: "No token provided" });
+    }
+
+   
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded) {
+            return res.status(403).send({ message: "Token is invalid" });
+        }
+        const email = decoded.email;
+        const user = await User.findOneAndUpdate({ email }, { confirmed: true });
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+
+        await user.save();
+        // Remove password from the response
+        const { password: _, ...userWithoutPassword } = user.toObject();
+        return res.status(200).send({
+            message: "Email confirmed successfully",
+            user: userWithoutPassword,
+        });
+
+
+})
 
 
 export const getProfile =asyncHandler (async (req, res ,next ) =>{
@@ -102,5 +128,3 @@ export const getProfile =asyncHandler (async (req, res ,next ) =>{
         return res.status(200).send({ user});
 
 })
-
-
