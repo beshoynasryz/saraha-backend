@@ -1,6 +1,6 @@
 import connectDB from './src/DB/ConnectionDB.js';  // Default import
 import errorHandler from './src/middlewares/errorhandlerMiddleware.js';
-import userRouter from './src/modules/user/user.routes.js';
+import userRouter from './src/modules/user/user.controller.js';
 
 
 function bootstrap(app, express) {
@@ -14,8 +14,6 @@ function bootstrap(app, express) {
         res.status(404).send({message: `Route ${req.originalUrl} not found`});
     });
     
-
-   
 }
 
 export default bootstrap;

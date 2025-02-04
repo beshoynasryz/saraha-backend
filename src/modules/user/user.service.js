@@ -4,16 +4,18 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import asyncHandler from "express-async-handler";
 import { sendEmail } from "../../services/sendEmail.js";
+import { eventEmitter } from "../../utils/sendEmail.event.js";
 dotenv.config();
 
 
-export const signUp =asyncHandler (async (req, res, next) => {
+export const signUp = asyncHandler (async (req, res, next) => {
    
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone ,gender } = req.body;
 
         // Validate required fields
         if (!name || !email || !password || !phone) {
-            return res.status(400).send({ message: "All fields are required" });
+            return next(new Error("All fields are required"));
+            // return res.status(400).send({ message: "All fields are required" });
         }
 
         // Check for existing user
@@ -25,17 +27,10 @@ export const signUp =asyncHandler (async (req, res, next) => {
         // Hash the password
         const hashPassword = await bcrypt.hash(password, 10);
 
-        //send email
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        const link = `http://localhost:3000/api/user/confirmEmail/${token}`;
-        const emailSender = await sendEmail (email , "confirm email" , `click <a href=${link}>here</a> to confirm your email` , `click <a href=${link}>here</a> to confirm your email`);
-        if(!emailSender) {
-            return res.status(500).send({ message: "Failed to send email" });
-        }
-
+         eventEmitter.emit("sendEmail" , {email})
         
         // Create new user
-        const user = await User.create({ name, email, password: hashPassword, phone });
+        const user = await User.create({ name, email, password: hashPassword, phone , gender });
 
         if (!user) {
             console.error("User creation failed", { name, email, phone });
@@ -128,3 +123,4 @@ export const getProfile =asyncHandler (async (req, res ,next ) =>{
         return res.status(200).send({ user});
 
 })
+
